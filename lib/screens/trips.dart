@@ -1,30 +1,26 @@
+import 'package:classico/Token%20Manager.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../services/api_service.dart';
+import '../models/post_model.dart';
 import '../CustomToolbar.dart';
-import '../Token Manager.dart';
-import '../component/VehicleScoreCard.dart';
 
 class TripsScreen extends StatefulWidget {
   const TripsScreen({super.key});
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _TripsScreenState createState() => _TripsScreenState();
 }
 
-class _HomeScreenState extends State<TripsScreen> {
-  final LatLng _dummyLocation = LatLng(40.758896, -73.985130);
-  final bool isLoading = false;
+class _TripsScreenState extends State<TripsScreen> {
+  late Future<List<Post>> _posts;
+  final ApiService _apiService = ApiService();
 
-  final VehicleDriverScoreResponse vehicleDriverScoreResponse =
-  VehicleDriverScoreResponse(
-    driverScore: 75,
-    factorsScore: FactorsScore(
-      fuelEfficiency: 40,
-      tripEfficiency: 60,
-      safetyLevel: 30,
-    ),
-  );
+  @override
+  void initState() {
+    super.initState();
+    _posts = _apiService.fetchPosts();
+  }
 
   void _showLogoutConfirmation(BuildContext context) {
     showDialog(
@@ -106,6 +102,70 @@ class _HomeScreenState extends State<TripsScreen> {
           ],
         ),
       ),
+      body: FutureBuilder<List<Post>>(
+        future: _posts,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text("Failed to load posts"));
+          } else {
+            final posts = snapshot.data ?? [];
+            return ListView.builder(
+              itemCount: posts.length,
+              itemBuilder: (context, index) {
+                return PostViewHolder(post: posts[index]);
+              },
+            );
+          }
+        },
+      ),
     );
   }
 }
+
+class PostViewHolder extends StatelessWidget {
+  final Post post;
+
+  const PostViewHolder({Key? key, required this.post}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 5,
+              offset: Offset(0, 3),
+            ),
+          ],
+        ),
+        child: ListTile(
+          contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          leading: CircleAvatar(
+            backgroundColor: Color(0xFFF8941E),
+            child: Text(post.id.toString()),
+          ),
+          title: Text(
+            _truncateTitle(post.title),
+            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _truncateTitle(String title) {
+    List<String> words = title.split(' ');
+    if (words.length > 8) {
+      return words.sublist(0, 8).join(' ') + '...'; // Add ellipsis if truncated
+    }
+    return title; // Return the original title if it's 8 words or less
+  }
+}
+
