@@ -1,9 +1,9 @@
-import 'package:classico/Token%20Manager.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/api_service.dart';
 import '../models/post_model.dart';
 import '../CustomToolbar.dart';
+import 'package:classico/Token%20Manager.dart';
 
 class TripsScreen extends StatefulWidget {
   const TripsScreen({super.key});
@@ -145,15 +145,25 @@ class PostViewHolder extends StatelessWidget {
             ),
           ],
         ),
-        child: ListTile(
-          contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-          leading: CircleAvatar(
-            backgroundColor: Color(0xFFF8941E),
-            child: Text(post.id.toString()),
-          ),
-          title: Text(
-            _truncateTitle(post.title),
-            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500),
+        child: InkWell(
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text("You clicked on id ${post.id}"),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          },
+          child: ListTile(
+            contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            leading: CircleAvatar(
+              backgroundColor: Color(0xFFF8941E),
+              child: Text(post.id.toString()),
+            ),
+            title: Text(
+              _truncateTitle(post.title),
+              style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
           ),
         ),
       ),
@@ -168,4 +178,3 @@ class PostViewHolder extends StatelessWidget {
     return title; // Return the original title if it's 8 words or less
   }
 }
-
