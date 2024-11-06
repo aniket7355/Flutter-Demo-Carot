@@ -1,3 +1,4 @@
+import 'package:classico/screens/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -54,6 +55,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _showProfile(BuildContext context){
+
+  }
+
   void _logoutUser() async {
     await TokenManager().removeToken();
     Navigator.of(context).pushReplacementNamed('/login');
@@ -89,6 +94,10 @@ class _HomeScreenState extends State<HomeScreen> {
               title: Text('Profile', style: GoogleFonts.poppins()),
               onTap: () {
                 Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                );
               },
             ),
             ListTile(
